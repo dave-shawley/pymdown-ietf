@@ -1,0 +1,6 @@
+.*
+/build
+/dist
+*.pyc
+!/.pre-commit-config.yaml
+!/.gitignore

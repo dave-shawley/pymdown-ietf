@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dave-shawley/pymdown-ietf",
+  "type": "object",
+  "properties": {
+    "http_headers": {
+      "$ref": "#/$defs/urlMapping"
+    },
+    "link_template": {
+      "type": "string",
+      "format": "uri-template"
+    },
+    "rfc": {
+      "properties": {
+        "process": {
+          "$ref": "#/$defs/processControl"
+        }
+      }
+    }
+  },
+  "required": [],
+  "default": {
+    "http_headers": { "enable": true,
+      "overrides": {}
+    },
+    "link_template": "https://www.rfc-editor.org/rfc/rfc{rfc}",
+    "rfc": { "enable": true }
+  },
+  "$defs": {
+    "processControl": {
+      "type": ["boolean", "null"],
+      "default": true
+    },
+    "urlMapping": {
+      "type": "object",
+      "properties": {
+        "process": {
+          "$ref": "#/$defs/processControl"
+        },
+        "overrides": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "url"
+          }
+        }
+      },
+      "required": [],
+      "default": {
+        "process": true,
+        "overrides": {}
+      }
+    }
+  }
+}
