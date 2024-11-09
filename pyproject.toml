@@ -34,8 +34,10 @@ ietflinks = "ietflinks.main:IetfLinksExtension"
 include = [
 	"/ietflinks",
 	"/.pre-commit-config.yaml",
-	"/AUTHORS.rst",
-	"/CONTRIBUTING.rst",
+	"/AUTHORS.md",
+	"/CHANGELOG.md",
+	"/CODE_OF_CONDUCT.md",
+	"/CONTRIBUTING.md",
 ]
 
 [tool.hatch.build.targets.wheel]
