@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 authors = [ { name = "Dave Shawley", email = "daveshawley@gmail.com" } ]
-dependencies = [ "markdown" ]
+dependencies = [ "markdown>=3.7,<4" ]
 classifiers = [
 	"Intended Audience :: Developers",
 	"License :: OSI Approved :: BSD License",
@@ -46,9 +46,9 @@ packages = [ "ietflinks" ]
 [tool.hatch.envs.default]
 python = "3.12"
 dependencies = [
-	"mypy",
-	"pre-commit",
-	"ruff",
+	"mypy>=1.13,<2",
+	"pre-commit>=4,<5",
+	"ruff>=0.7,<1",
 	"types-markdown",
 	"types-requests",
 ]
