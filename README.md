@@ -5,8 +5,7 @@
 
 I wrote this simple extension when I was converting my [ietfparse] project from sphinx
 to mkdocs. It's documentation suite contains **a lot** of references to RFCs and HTTP
-headers. Sphinx supports referencing RFCs using
-[`:rfc:`](https://docs.readthedocs.io/en/stable/intro/mkdocs.html) natively. The
+headers. Sphinx supports referencing RFCs using [`:rfc:`] natively. The
 [sphinxcontrib-httpdomain] package adds support for HTTP headers and status codes
 using `:http:`. I wanted to bring this to mkdocs so that I didn't need to
 continuously add local references to RFCs.
