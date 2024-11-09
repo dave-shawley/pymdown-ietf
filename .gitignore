@@ -3,4 +3,5 @@
 /dist
 *.pyc
 !/.pre-commit-config.yaml
+!/.github
 !/.gitignore
