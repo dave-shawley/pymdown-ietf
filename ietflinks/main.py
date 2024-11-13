@@ -1,6 +1,5 @@
 import collections
 import csv
-import functools
 import importlib.resources
 import re
 import typing
@@ -20,10 +19,14 @@ class _ConfigMapping(typing.TypedDict):
     overrides: abc.Mapping[str, str]
 
 
+class _HeaderConfig(_ConfigMapping):
+    include_deprecated: bool
+
+
 class _Configuration(typing.TypedDict):
     link_template: str
     rfc: _ConfigMapping
-    http_headers: _ConfigMapping
+    http_headers: _HeaderConfig
 
 
 class _IETFMapper:
@@ -34,14 +37,8 @@ class _IETFMapper:
     def process_configuration(
         self, config: _Configuration, md: markdown.Markdown
     ) -> None:
-        link = self.link_template = config['link_template']
-        self.header_links.update(
-            {
-                HTTPHeader(header.lower()): RFCLink(link.format(rfc=rfc))
-                for rfc, headers in self.header_map.items()
-                for header in headers
-            }
-        )
+        self.link_template = config['link_template']
+        self.header_links.update(_read_header_data(config))
 
         process = config['rfc'].get('process', True)
         if process is not None:
@@ -111,31 +108,47 @@ class _IETFMapper:
             link = link.removesuffix('#') + f'#{anchor}'
         return link
 
-    @functools.cached_property
-    def header_map(self) -> abc.Mapping[int, abc.Set[str]]:
-        data = collections.defaultdict(set)
-        data_dir = importlib.resources.files(f'{__package__}.data')
-        for path in data_dir.iterdir():
-            if path.name == 'field-names.csv':
-                with path.open('r', encoding='utf-8') as f:
-                    rows = csv.DictReader(f)
-                    expr = re.compile(r'\[RFC[- ]?(?P<rfc_no>\d+)')
-                    for row in rows:
-                        if row['Status'] == 'permanent' and (
-                            m := expr.match(row['Reference'])
-                        ):
-                            data[int(m['rfc_no'])].add(
-                                row['Field Name'].lower()
-                            )
-                break
-        return data
+
+def _read_header_data(
+    config: _Configuration,
+) -> abc.Mapping[HTTPHeader, RFCLink]:
+    """Read HTTP header data from the bundled CSV file."""
+    expr = re.compile(r'\[RFC[- ]?(?P<rfc_no>\d+)')
+    header_map = collections.defaultdict(set)
+    skip_deprecated = not config['http_headers']['include_deprecated']
+    link_template = config['link_template']
+
+    def process_row(r: dict[str, str]) -> None:
+        ref = expr.match(r['Reference'])
+        if not ref:
+            return
+        if r['Status'] != 'permanent' and skip_deprecated:
+            return
+        header_map[int(ref['rfc_no'])].add(r['Field Name'].lower())
+
+    data_dir = importlib.resources.files(f'{__package__}.data')
+    for path in data_dir.iterdir():
+        if path.name == 'field-names.csv':
+            with path.open('r', encoding='utf-8') as f:
+                for row in csv.DictReader(f):
+                    process_row(row)
+            break
+
+    return {
+        HTTPHeader(header.lower()): RFCLink(link_template.format(rfc=rfc))
+        for rfc, headers in header_map.items()
+        for header in headers
+    }
 
 
 class IetfLinksExtension(markdown.Extension):
     """Add inlineProcessors for RFC & HTTP header references."""
 
     config: abc.Mapping[str, list[object]] = {
-        'http_headers': [{'process': True}, 'Enable HTTP header links'],
+        'http_headers': [
+            {'process': True, 'include_deprecated': False},
+            'Enable HTTP header links',
+        ],
         'rfc': [{'process': True}, 'Enable links to RFCs'],
         'link_template': [
             'https://www.rfc-editor.org/rfc/rfc{rfc}',

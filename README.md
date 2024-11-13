@@ -63,6 +63,20 @@ markdown_extension:
         content-md5: "https://www.rfc-editor.org/rfc/rfc2616.html#section-14.15"
 ```
 
+I've bundled the registered HTTP headers from the [IANA HTTP Field Name Registry] in
+the CSV form. By default, the **permanent** headers are included. If you need to reference
+deprecated, obsolete, or provisional headers, then set `http_headers.include_deprecated`
+to `true`.
+
+```yaml
+markdown_extensions:
+  - ietflinks:
+    http_headers:
+      include_deprecated: true
+```
+
+[IANA HTTP Field Name Registry]: https://www.iana.org/assignments/http-fields/http-fields.xhtml
+
 You can also change the URL template if you find a reason to. It defaults to
 `https://www.rfc-editor.org/rfc/rfc{rfc}`. The `{rfc}` parameter is replaced by the
 RFC number.
